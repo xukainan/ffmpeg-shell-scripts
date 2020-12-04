@@ -62,6 +62,7 @@ TEXT_OUT_DURATION_ARRAY=($TEXT_OUT_DURATION_STRS)
 
 
 
+
 IMAGE_ARRAY_LENGTH=${#IMAGE_ARRAY[@]}
 echo $IMAGE_ARRAY_LENGTH
 TEXT_ARRAY_LENGTH=${#TEXT_ARRAY[@]}
@@ -75,13 +76,13 @@ if [ $IMAGE_ARRAY_LENGTH -eq 2 ];
     m1=${METHOD_ARRAY[0]}
     d1=${DURATION_ARRAY[0]}
     o1=${OFFSET_ARRAY[0]}
-    h1="[0][1]xfade=transition="$m1":duration="$d1":offset="$o1
+    h1="[0:v]scale=$OUT_SIZE[0],[1:v]scale=$OUT_SIZE[1],2:v]scale=$OUT_SIZE[2],[1][2]xfade=transition="$m1":duration="$d1":offset="$o1
     echo "======h1========="$h1
-else
+elif [ $IMAGE_ARRAY_LENGTH -gt 2 ]; then
     $(> temp)
     tempstr=""
     index_scale=1
-    echo -n "[0:v]scale=$OUT_SIZE["0"]," >> temp
+    echo -n "[0:v]scale=$OUT_SIZE[0]," >> temp
     while [ $index_scale -le $IMAGE_ARRAY_LENGTH ]
     do
         echo -n "["$index_scale":v]scale=$OUT_SIZE["$index_scale"]," >> temp
@@ -141,10 +142,10 @@ if [ $TEXT_ARRAY_LENGTH -gt 0 ]; then
     echo -n "[text$index]scale=w=$OUT_WIDTH:h=$OUT_HEIGHT[text$index],[mid][text$index]overlay=x=0:y=0[mid]," >> temp
   done
     h3=$(cat temp)
-    h3=${h3%[*}
+    h3=${h3%[*}","
     echo $h3
 else
-    h1=${h1%[*}
+    h1=${h1%[*}","
     echo $h1
 fi
 
@@ -175,7 +176,7 @@ h2=$(cat temp)
 echo $h2
 echo "=========h2 end========"
 
-execStr="./ffmpeg.exe $h2 -filter_complex $h1$h3,format=yuv420p 2.mp4"
+execStr="./ffmpeg.exe $h2 -filter_complex "$h1$h3"format=yuv420p 2.mp4"
 
 
 echo "=========execStr========"
