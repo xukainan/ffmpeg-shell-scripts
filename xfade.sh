@@ -9,27 +9,27 @@ ulimit -c 9999999
 #DURATION_STRS="1"
 #OFFSET_STRS="6.5"
 #test 多个
-METHOD_STRS="fade slideleft"
-IMAGE_STRS="002.jpg 003.jpg 26.mp4"
-TIME_STRS="6 7 8"
-DURATION_STRS="2 2"
-OFFSET_STRS="4 7"
-FORMAT_STRS="1 1 2" # 格式数组，1为图片 2为视频
-OUT_WIDTH="640"
-OUT_HEIGHT="360"
-TRANSPARENT_IMAGE="008.png" #透明图片。为了整合Xfade效果
-TEXT_IN_EFFECT_STRS="slideleft" #无效果为0
-TEXT_OUT_EFFECT_STRS="vuslice" #无效果为0
-TEXT_FONTCOLOR_STRS="red"
-TEXT_FONTSIZE_STRS="60"
-TEXT_FONTFILE_STRS="fz.ttf"
-TEXT_STRS="购房大抢购"
-TEXT_X_STRS="50"
-TEXT_Y_STRS="200"
-TEXT_IN_OFFECT_STRS="2.5"
-TEXT_IN_DURATION_STRS="1"
-TEXT_OUT_OFFECT_STRS="1.5"
-TEXT_OUT_DURATION_STRS="1"
+METHOD_STRS="horzclose"
+IMAGE_STRS="3.jpg 33.jpg"
+TIME_STRS="3.5 2.5"
+DURATION_STRS="1 "
+OFFSET_STRS="2.5"
+FORMAT_STRS="1 1" # 格式数组，1为图片 2为视频
+OUT_WIDTH="828"
+OUT_HEIGHT="1552"
+TRANSPARENT_IMAGE=""
+TEXT_IN_EFFECT_STRS=""
+TEXT_OUT_EFFECT_STRS=""
+TEXT_FONTCOLOR_STRS=""
+TEXT_FONTSIZE_STRS=""
+TEXT_FONTFILE_STRS=""
+TEXT_STRS=""
+TEXT_X_STRS=""
+TEXT_Y_STRS=""
+TEXT_IN_OFFECT_STRS=""
+TEXT_IN_DURATION_STRS=""
+TEXT_OUT_OFFECT_STRS=""
+TEXT_OUT_DURATION_STRS=""
 
 # 传参
 #METHOD_STRS=$1
@@ -76,14 +76,26 @@ if [ $IMAGE_ARRAY_LENGTH -eq 2 ];
     m1=${METHOD_ARRAY[0]}
     d1=${DURATION_ARRAY[0]}
     o1=${OFFSET_ARRAY[0]}
-    h1="[0:v]scale=$OUT_SIZE[0],[1:v]scale=$OUT_SIZE[1],2:v]scale=$OUT_SIZE[2],[1][2]xfade=transition="$m1":duration="$d1":offset="$o1
+    if [ $TEXT_ARRAY_LENGTH -gt 0 ];
+      then
+         h1="[0:v]scale=$OUT_SIZE[0],[1:v]scale=$OUT_SIZE[1],[2:v]scale=$OUT_SIZE[2],[1][2]xfade=transition="$m1":duration="$d1":offset="$o1
+      else
+         h1="[0:v]scale=$OUT_SIZE[0],[1:v]scale=$OUT_SIZE[1],[0][1]xfade=transition="$m1":duration="$d1":offset="$o1
+    fi
     echo "======h1========="$h1
 elif [ $IMAGE_ARRAY_LENGTH -gt 2 ]; then
     $(> temp)
     tempstr=""
-    index_scale=1
-    echo -n "[0:v]scale=$OUT_SIZE[0]," >> temp
-    while [ $index_scale -le $IMAGE_ARRAY_LENGTH ]
+    index_scale=0
+    index_scale_length=$(($IMAGE_ARRAY_LENGTH-1))
+    if [ $TEXT_ARRAY_LENGTH -gt 0 ];
+    then
+      echo -n "[0:v]scale=$OUT_SIZE[0]," >> temp
+      index_scale=$(($index_scale+1))
+      index_scale_length=$IMAGE_ARRAY_LENGTH
+    fi
+
+    while [ $index_scale -le $index_scale_length ]
     do
         echo -n "["$index_scale":v]scale=$OUT_SIZE["$index_scale"]," >> temp
         index_scale=$(($index_scale+1))
@@ -98,14 +110,24 @@ elif [ $IMAGE_ARRAY_LENGTH -gt 2 ]; then
             m1=${METHOD_ARRAY[0]}
             d1=${DURATION_ARRAY[0]}
             o1=${OFFSET_ARRAY[0]}
-            echo -n "[1][2]xfade=transition="$m1":duration="$d1":offset="$o1"[mid]," >> temp
+            if [ $TEXT_ARRAY_LENGTH -gt 0 ];
+              then
+                echo -n "[1][2]xfade=transition="$m1":duration="$d1":offset="$o1"[mid]," >> temp
+              else
+                echo -n "[0][1]xfade=transition="$m1":duration="$d1":offset="$o1"[mid]," >> temp
+            fi
             let "index+=1"
       else
           echo "============>0============="
           m1=${METHOD_ARRAY[$index]}
           d1=${DURATION_ARRAY[$index]}
           o1=${OFFSET_ARRAY[$index]}
-          x=$(expr "$index" + "2")
+          if [ $TEXT_ARRAY_LENGTH -gt 0 ];
+            then
+              x=$(expr "$index" + "2")
+            else
+              x=$(expr "$index" + "1")
+          fi
           echo "===x===" $x
           echo -n "[mid][$x]xfade=transition="$m1":duration="$d1":offset="$o1"[mid]," >> temp
           let "index+=1"
@@ -145,7 +167,12 @@ if [ $TEXT_ARRAY_LENGTH -gt 0 ]; then
     h3=${h3%[*}","
     echo $h3
 else
-    h1=${h1%[*}","
+    if [ $IMAGE_ARRAY_LENGTH -gt 2 ];
+      then
+       h1=${h1%[*}","
+      else
+       h1=$h1","
+    fi
     echo $h1
 fi
 
