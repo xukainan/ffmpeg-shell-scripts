@@ -2,47 +2,37 @@
 # !/bin/sh
 ulimit -c 9999999
 
-#test 两个
-#METHOD_STRS="fade"
-#IMAGE_STRS="002.jpg 003.jpg"
-#TIME_STRS="7 8 "
-#DURATION_STRS="1"
-#OFFSET_STRS="6.5"
 #test 多个
 METHOD_STRS=""
-IMAGE_STRS="qb1.jpg"
+IMAGE_STRS="b2.jpg"
 DURATION_TIME="4"
-TIME_STRS="6"
+TIME_STRS="5"
 DURATION_STRS=""
 OFFSET_STRS=""
 FORMAT_STRS="1" # 格式数组，1为图片 2为视频
-OUT_WIDTH="750"
-OUT_HEIGHT="634"
-TRANSPARENT_IMAGE="img750_0.png"
-TEXT_IN_EFFECT_STRS="slidedown slidedown slidedown slideright slideright slideright"
+OUT_WIDTH="828"
+OUT_HEIGHT="1552"
+TRANSPARENT_IMAGE="img_0.png"
+TEXT_IN_EFFECT_STRS="vdslice vdslice smoothright slidedown"
 #TEXT_OUT_EFFECT_STRS="circleclose circleclose circleclose circleclose"
-TEXT_FONTCOLOR_STRS="Black Black Black Black Black Black"
-TEXT_FONTSIZE_STRS="85 85 25 50 17 7"
-TEXT_FONTFILE_STRS="fz.ttf fz.ttf fz.ttf fz.ttf fz.ttf fz.ttf"
-TEXT_STRS="跃级科技 越中国府 国府II期145-185㎡恒温恒氧装修科技大宅 0551-67178888 中国合肥滨湖新区洞庭湖路与华山路交汇处 合房预售证第20180901，合房预售证第20180902"
-TEXT_X_STRS="180 180 145 55 410 410"
-TEXT_Y_STRS="120 210 325 570 570 605"
-TEXT_IN_OFFECT_STRS="0.5 1 1 2 2 2"
-TEXT_IN_DURATION_STRS="0.5 0.5 0.5 0.5 0.5 0.5"
-TEXT_OUT_OFFECT_STRS="6 6 6 6 6 6"
-LOGO_STRS="qb1l.png qb1c.png"
-LOGO_IN_EFFECT_STRS="vertopen slideright"
-LOGO_X_STRS="180 180 145 55 410 410"
-LOGO_Y_STRS="120 210 325 570 570 605"
-LOGO_IN_OFFECT_STRS="0.5 1 1 2 2 2"
-LOGO_IN_DURATION_STRS="0.5 0.5 0.5 0.5 0.5 0.5"
-LOGO_OUT_OFFECT_STRS="6 6 6 6 6 6"
-
-
-#TEXT_OUT_DURATION_STRS=""
+TEXT_FONTCOLOR_STRS="#F8CA92 #F8CA92 red #FFD3A4"
+TEXT_FONTSIZE_STRS="72 90 60 30"
+TEXT_FONTFILE_STRS="fz.ttf fz.ttf fz.ttf fz.ttf"
+TEXT_STRS="博辉·万象城二期 健康科技奢宅 0335-598-8888 天誉礼繁华·一城传世家"
+TEXT_X_STRS="100 100 140 150"
+TEXT_Y_STRS="580 650 900 1080"
+TEXT_IN_OFFECT_STRS="0.5 1 2 2"
+TEXT_IN_DURATION_STRS="0.5 0.5 0.5 0.5"
+TEXT_OUT_OFFECT_STRS="6 6 6 6"
+LOGO_STRS="4l.png 4d.png"
+LOGO_IN_EFFECT_STRS="circleopen smoothright"
+#LOGO_X_STRS="180 180 145 55 410 410"
+#LOGO_Y_STRS="120 210 325 570 570 605"
+LOGO_IN_OFFECT_STRS="0.5 1"
+LOGO_IN_DURATION_STRS="0.5 0.5"
+LOGO_OUT_OFFECT_STRS="6 6"
 MUSIC=""
-#TEXT_OUT_DURATION_STRS=""
-OUT="10.mp4"
+OUT="4.mp4"
 
 # 传参
 #METHOD_STRS=$1
@@ -72,8 +62,8 @@ TEXT_IN_DURATION_ARRAY=($TEXT_IN_DURATION_STRS)
 TEXT_OUT_OFFECT_ARRAY=($TEXT_OUT_OFFECT_STRS)
 LOGO_ARRAY=($LOGO_STRS)
 LOGO_IN_EFFECT_ARRAY=($LOGO_IN_EFFECT_STRS)
-LOGO_X_ARRAY=($LOGO_X_STRS)
-LOGO_Y_ARRAY=($LOGO_Y_STRS)
+#LOGO_X_ARRAY=($LOGO_X_STRS)
+#LOGO_Y_ARRAY=($LOGO_Y_STRS)
 LOGO_IN_OFFECT_ARRAY=($LOGO_IN_OFFECT_STRS)
 LOGO_IN_DURATION_ARRAY=($LOGO_IN_DURATION_STRS)
 LOGO_OUT_OFFECT_ARRAY=($LOGO_OUT_OFFECT_STRS)
@@ -164,6 +154,36 @@ elif [ $IMAGE_ARRAY_LENGTH -gt 2 ]; then
     fi
 fi
 
+if [ $LOGO_ARRAY_LENGTH -gt 0 ]; then
+  $(> temp)
+  index=0
+  streamnum=$IMAGE_ARRAY_LENGTH
+  if [  $TEXT_ARRAY_LENGTH -gt 0  ]; then
+      streamnum=$(expr "$streamnum" + "1")
+  fi
+  if [  -n "$MUSIC" ]; then
+      streamnum=$(expr "$streamnum" + "1")
+  fi
+  for logo in $LOGO_STRS; do
+#    lx1=${LOGO_X_ARRAY[$index]}
+#    ly1=${LOGO_Y_ARRAY[$index]}
+    li1=${LOGO_IN_EFFECT_ARRAY[$index]}
+    loo1=${LOGO_OUT_OFFECT_ARRAY[$index]}
+    lio1=${LOGO_IN_OFFECT_ARRAY[$index]}
+    lid1=${LOGO_IN_DURATION_ARRAY[$index]}
+    echo -n "[$streamnum:v]scale=$OUT_SIZE[$streamnum],"  >> temp
+    echo -n "[0][$streamnum]xfade=transition=$li1:offset=$lio1:duration=$lid1[$streamnum],"  >> temp
+    echo -n "[$streamnum]scale=w=$OUT_WIDTH:h=$OUT_HEIGHT[$streamnum],[mid][$streamnum]overlay=x=0:y=0:enable='between(t,0,$loo1)'[mid]," >> temp
+    let "index+=1"
+    streamnum=$(expr "$streamnum" + "1")
+  done
+    h4=$(cat temp)
+    if [ $TEXT_ARRAY_LENGTH -eq 0 ]; then
+      h4=${h4%[*}","
+    fi
+    echo "--------------------h4-------------:"$h4
+fi
+
 if [ $TEXT_ARRAY_LENGTH -gt 0 ]; then
   $(> temp)
   index=0
@@ -185,40 +205,8 @@ if [ $TEXT_ARRAY_LENGTH -gt 0 ]; then
     let "index+=1"
   done
     h3=$(cat temp)
-  if [ $LOGO_ARRAY_LENGTH -eq 0 ]; then
     h3=${h3%[*}","
-  fi
   echo "--------------------h3-------------:"$h3
-fi
-
-
-
-if [ $LOGO_ARRAY_LENGTH -gt 0 ]; then
-  $(> temp)
-  index=0
-  streamnum=$IMAGE_ARRAY_LENGTH
-  if [  $TEXT_ARRAY_LENGTH -gt 0  ]; then
-      streamnum=$(expr "$streamnum" + "1")
-  fi
-  if [  -n "$MUSIC" ]; then
-      streamnum=$(expr "$streamnum" + "1")
-  fi
-  for logo in $LOGO_STRS; do
-    lx1=${LOGO_X_ARRAY[$index]}
-    ly1=${LOGO_Y_ARRAY[$index]}
-    li1=${LOGO_IN_EFFECT_ARRAY[$index]}
-    loo1=${LOGO_OUT_OFFECT_ARRAY[$index]}
-    lio1=${LOGO_IN_OFFECT_ARRAY[$index]}
-    lid1=${LOGO_IN_DURATION_ARRAY[$index]}
-    echo -n "[$streamnum:v]scale=$OUT_SIZE[$streamnum],"  >> temp
-    echo -n "[0][$streamnum]xfade=transition=$li1:offset=$lio1:duration=$lid1[$streamnum],"  >> temp
-    echo -n "[$streamnum]scale=w=$OUT_WIDTH:h=$OUT_HEIGHT[$streamnum],[mid][$streamnum]overlay=x=0:y=0:enable='between(t,0,$loo1)'[mid]," >> temp
-    let "index+=1"
-    streamnum=$(expr "$streamnum" + "1")
-  done
-    h4=$(cat temp)
-    h4=${h4%[*}","
-    echo "--------------------h4-------------:"$h4
 fi
 
 
@@ -251,7 +239,7 @@ done
 h2=$(cat temp)
 echo $h2
 
-execStr="./ffmpeg.exe $h2 -filter_complex "$h1$h3$h4"format=yuv420p -b:v 9000k -bufsize 9000k "$OUT
+execStr="./ffmpeg.exe $h2 -filter_complex "$h1$h4$h3"format=yuv420p -b:v 9000k -bufsize 9000k "$OUT
 
 
 echo "=========execStr========"
