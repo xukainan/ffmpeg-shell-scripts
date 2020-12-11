@@ -9,29 +9,40 @@ ulimit -c 9999999
 #DURATION_STRS="1"
 #OFFSET_STRS="6.5"
 #test 多个
-METHOD_STRS="smoothup  wipedown"
-IMAGE_STRS="x211.jpg x2.mp4 x212.jpg"
-DURATION_TIME="35"
-TIME_STRS="3 30 4"
-DURATION_STRS="1 1"
-OFFSET_STRS="2 31"
-FORMAT_STRS="1 2 1" # 格式数组，1为图片 2为视频
-OUT_WIDTH="1920"
-OUT_HEIGHT="1080"
-TRANSPARENT_IMAGE="008.png"
-TEXT_IN_EFFECT_STRS="diagbr diagbr"
-#TEXT_OUT_EFFECT_STRS="0 0"
-TEXT_FONTCOLOR_STRS="white white"
-TEXT_FONTSIZE_STRS="34 34"
-TEXT_FONTFILE_STRS="fz.ttf fz.ttf"
-TEXT_STRS="典藏版山水晓院别墅 花园叠拼"
-TEXT_X_STRS="80 80"
-TEXT_Y_STRS="280 280"
-TEXT_IN_OFFECT_STRS="6 12"
-TEXT_IN_DURATION_STRS="2 2"
-TEXT_OUT_OFFECT_STRS="9 15"
+METHOD_STRS=""
+IMAGE_STRS="qb1.jpg"
+DURATION_TIME="4"
+TIME_STRS="6"
+DURATION_STRS=""
+OFFSET_STRS=""
+FORMAT_STRS="1" # 格式数组，1为图片 2为视频
+OUT_WIDTH="750"
+OUT_HEIGHT="634"
+TRANSPARENT_IMAGE="img750_0.png"
+TEXT_IN_EFFECT_STRS="slidedown slidedown slidedown slideright slideright slideright"
+#TEXT_OUT_EFFECT_STRS="circleclose circleclose circleclose circleclose"
+TEXT_FONTCOLOR_STRS="Black Black Black Black Black Black"
+TEXT_FONTSIZE_STRS="85 85 25 50 17 7"
+TEXT_FONTFILE_STRS="fz.ttf fz.ttf fz.ttf fz.ttf fz.ttf fz.ttf"
+TEXT_STRS="跃级科技 越中国府 国府II期145-185㎡恒温恒氧装修科技大宅 0551-67178888 中国合肥滨湖新区洞庭湖路与华山路交汇处 合房预售证第20180901，合房预售证第20180902"
+TEXT_X_STRS="180 180 145 55 410 410"
+TEXT_Y_STRS="120 210 325 570 570 605"
+TEXT_IN_OFFECT_STRS="0.5 1 1 2 2 2"
+TEXT_IN_DURATION_STRS="0.5 0.5 0.5 0.5 0.5 0.5"
+TEXT_OUT_OFFECT_STRS="6 6 6 6 6 6"
+LOGO_STRS="qb1l.png qb1c.png"
+LOGO_IN_EFFECT_STRS="vertopen slideright"
+LOGO_X_STRS="180 180 145 55 410 410"
+LOGO_Y_STRS="120 210 325 570 570 605"
+LOGO_IN_OFFECT_STRS="0.5 1 1 2 2 2"
+LOGO_IN_DURATION_STRS="0.5 0.5 0.5 0.5 0.5 0.5"
+LOGO_OUT_OFFECT_STRS="6 6 6 6 6 6"
+
+
 #TEXT_OUT_DURATION_STRS=""
-OUT="20.mp4"
+MUSIC=""
+#TEXT_OUT_DURATION_STRS=""
+OUT="10.mp4"
 
 # 传参
 #METHOD_STRS=$1
@@ -59,8 +70,14 @@ TEXT_Y_ARRAY=($TEXT_Y_STRS)
 TEXT_IN_OFFECT_ARRAY=($TEXT_IN_OFFECT_STRS)
 TEXT_IN_DURATION_ARRAY=($TEXT_IN_DURATION_STRS)
 TEXT_OUT_OFFECT_ARRAY=($TEXT_OUT_OFFECT_STRS)
+LOGO_ARRAY=($LOGO_STRS)
+LOGO_IN_EFFECT_ARRAY=($LOGO_IN_EFFECT_STRS)
+LOGO_X_ARRAY=($LOGO_X_STRS)
+LOGO_Y_ARRAY=($LOGO_Y_STRS)
+LOGO_IN_OFFECT_ARRAY=($LOGO_IN_OFFECT_STRS)
+LOGO_IN_DURATION_ARRAY=($LOGO_IN_DURATION_STRS)
+LOGO_OUT_OFFECT_ARRAY=($LOGO_OUT_OFFECT_STRS)
 #TEXT_OUT_DURATION_ARRAY=($TEXT_OUT_DURATION_STRS)
-
 
 
 
@@ -71,6 +88,8 @@ TEXT_ARRAY_LENGTH=${#TEXT_ARRAY[@]}
 echo $TEXT_ARRAY_LENGTH
 METHOD_ARRAY_LENGTH=${#METHOD_ARRAY[@]}
 echo $METHOD_ARRAY_LENGTH
+LOGO_ARRAY_LENGTH=${#LOGO_ARRAY[@]}
+echo $LOGO_ARRAY_LENGTH
 
 
 if [ $IMAGE_ARRAY_LENGTH -eq 2 ];
@@ -80,13 +99,17 @@ if [ $IMAGE_ARRAY_LENGTH -eq 2 ];
     o1=${OFFSET_ARRAY[0]}
     if [ $TEXT_ARRAY_LENGTH -gt 0 ];
       then
-         h1="[0:v]scale=$OUT_SIZE[0],[1:v]scale=$OUT_SIZE[1],[2:v]scale=$OUT_SIZE[2],[1][2]xfade=transition="$m1":duration="$d1":offset="$o1
+         h1="[0:v]scale=$OUT_SIZE[0],[1:v]scale=$OUT_SIZE[1],[2:v]scale=$OUT_SIZE[2],[1][2]xfade=transition="$m1":duration="$d1":offset="$o1"[mid],"
       else
-         h1="[0:v]scale=$OUT_SIZE[0],[1:v]scale=$OUT_SIZE[1],[0][1]xfade=transition="$m1":duration="$d1":offset="$o1
+         h1="[0:v]scale=$OUT_SIZE[0],[1:v]scale=$OUT_SIZE[1],[0][1]xfade=transition="$m1":duration="$d1":offset="$o1"[mid],"
     fi
-    echo "======h1========="$h1
 elif [ $IMAGE_ARRAY_LENGTH -eq 1 ]; then
-       h1="[1:v]scale=$OUT_SIZE[mid],"
+    if [ $TEXT_ARRAY_LENGTH -gt 0 ];
+      then
+         h1="[0:v]scale=$OUT_SIZE[0],[1:v]scale=$OUT_SIZE[mid],"
+      else
+         h1="[0:v]scale=$OUT_SIZE[mid],"
+    fi
 elif [ $IMAGE_ARRAY_LENGTH -gt 2 ]; then
     $(> temp)
     tempstr=""
@@ -107,10 +130,8 @@ elif [ $IMAGE_ARRAY_LENGTH -gt 2 ]; then
     index=0
     for method in $METHOD_STRS;
     do
-      echo "============index============="$index
       if [ $index -eq 0 ];
       then
-            echo "============0============="
             m1=${METHOD_ARRAY[0]}
             d1=${DURATION_ARRAY[0]}
             o1=${OFFSET_ARRAY[0]}
@@ -122,7 +143,6 @@ elif [ $IMAGE_ARRAY_LENGTH -gt 2 ]; then
             fi
             let "index+=1"
       else
-          echo "============>0============="
           m1=${METHOD_ARRAY[$index]}
           d1=${DURATION_ARRAY[$index]}
           o1=${OFFSET_ARRAY[$index]}
@@ -133,24 +153,21 @@ elif [ $IMAGE_ARRAY_LENGTH -gt 2 ]; then
             else
               x=$(expr "$index" + "1")
           fi
-          echo "===x===" $x
           echo -n "[$mid][$x]xfade=transition="$m1":duration="$d1":offset="$o1"[mid]," >> temp
           let "index+=1"
       fi
-      echo "============index==end============="$index
 
     done
-    h1=$(cat temp)
-    echo $h1
+    if [ $TEXT_ARRAY_LENGTH -eq 0 -a $LOGO_ARRAY_LENGTH -eq 0 ]; then
+      h1=${h1%[*}","
+      echo "---------h1---------"$h1
+    fi
 fi
 
 if [ $TEXT_ARRAY_LENGTH -gt 0 ]; then
   $(> temp)
   index=0
-  enablet=${OFFSET_ARRAY[$index]}
-  echo "---------------text-------------------： "$TEXT_ARRAY_LENGTH
   for text in $TEXT_STRS; do
-    echo "-----------text:"$text
     tc1=${TEXT_FONTCOLOR_ARRAY[$index]}
     ts1=${TEXT_FONTSIZE_ARRAY[$index]}
     tf1=${TEXT_FONTFILE_ARRAY[$index]}
@@ -158,41 +175,52 @@ if [ $TEXT_ARRAY_LENGTH -gt 0 ]; then
     ty1=${TEXT_Y_ARRAY[$index]}
     ti1=${TEXT_IN_EFFECT_ARRAY[$index]}
     too1=${TEXT_OUT_OFFECT_ARRAY[$index]}
-#    to1=${TEXT_OUT_EFFECT_ARRAY[$index]}
-    echo "tx1"$tx1",ty1"$ty1
-#    echo -n "[0]drawtext=fontcolor=$tc1:fontsize=$ts1:fontfile=$tf1:line_spacing=7:text=$text:x=$tx1:y=$ty1:enable='lte(t\,$enablet)'[text$index],"  >> temp
     echo -n "[0]drawtext=fontcolor=$tc1:fontsize=$ts1:fontfile=$tf1:line_spacing=7:text=$text:x=$tx1:y=$ty1[text$index],"  >> temp
-    let "enablet+=${OFFSET_ARRAY[$index]}"
     if [ $ti1 != "0" ]; then
       tio1=${TEXT_IN_OFFECT_ARRAY[$index]}
       tid1=${TEXT_IN_DURATION_ARRAY[$index]}
       echo -n "[0][text$index]xfade=transition=$ti1:offset=$tio1:duration=$tid1[text$index],"  >> temp
     fi
-#    if [ $to1 != "0" ]; then
-#      too1=${TEXT_OUT_OFFECT_ARRAY[$index]}
-#      tod1=${TEXT_OUT_DURATION_ARRAY[index]}
-#      echo -n "[text$index][0]xfade=transition=$to1:offset=$too1:duration=$tod1[text$index],"  >> temp
-#    fi
       echo -n "[text$index]scale=w=$OUT_WIDTH:h=$OUT_HEIGHT[text$index],[mid][text$index]overlay=x=0:y=0:enable='between(t,0,$too1)'[mid]," >> temp
     let "index+=1"
   done
     h3=$(cat temp)
-    echo "--------------------h3 169-------------:"$h3
+  if [ $LOGO_ARRAY_LENGTH -eq 0 ]; then
     h3=${h3%[*}","
-    echo $h3
-else
-  if [ $IMAGE_ARRAY_LENGTH -ne 1 ]; then
-     if [ $IMAGE_ARRAY_LENGTH -gt 2 ];
-      then
-       h1=${h1%[*}","
-      else
-       h1=$h1","
-    fi
   fi
-    echo $h1
+  echo "--------------------h3-------------:"$h3
 fi
 
-echo "================== start ==================== "
+
+
+if [ $LOGO_ARRAY_LENGTH -gt 0 ]; then
+  $(> temp)
+  index=0
+  streamnum=$IMAGE_ARRAY_LENGTH
+  if [  $TEXT_ARRAY_LENGTH -gt 0  ]; then
+      streamnum=$(expr "$streamnum" + "1")
+  fi
+  if [  -n "$MUSIC" ]; then
+      streamnum=$(expr "$streamnum" + "1")
+  fi
+  for logo in $LOGO_STRS; do
+    lx1=${LOGO_X_ARRAY[$index]}
+    ly1=${LOGO_Y_ARRAY[$index]}
+    li1=${LOGO_IN_EFFECT_ARRAY[$index]}
+    loo1=${LOGO_OUT_OFFECT_ARRAY[$index]}
+    lio1=${LOGO_IN_OFFECT_ARRAY[$index]}
+    lid1=${LOGO_IN_DURATION_ARRAY[$index]}
+    echo -n "[$streamnum:v]scale=$OUT_SIZE[$streamnum],"  >> temp
+    echo -n "[0][$streamnum]xfade=transition=$li1:offset=$lio1:duration=$lid1[$streamnum],"  >> temp
+    echo -n "[$streamnum]scale=w=$OUT_WIDTH:h=$OUT_HEIGHT[$streamnum],[mid][$streamnum]overlay=x=0:y=0:enable='between(t,0,$loo1)'[mid]," >> temp
+    let "index+=1"
+    streamnum=$(expr "$streamnum" + "1")
+  done
+    h4=$(cat temp)
+    h4=${h4%[*}","
+    echo "--------------------h4-------------:"$h4
+fi
+
 
 
 $(> temp)
@@ -211,20 +239,22 @@ do
       echo $cycleStr " -r 30 -i " $image >> temp
       let "index+=1"
  fi
-
+done
+if [ -n "$MUSIC" ]; then
+  echo $cycleStr " -i " $MUSIC >> temp
+fi
+for logo in $LOGO_STRS;
+do
+  echo $cycleStr " -r 30 -loop 1 -t $DURATION_TIME -i " $logo >> temp
 done
 
-echo "=========h2========"
 h2=$(cat temp)
 echo $h2
-echo "=========h2 end========"
 
-execStr="./ffmpeg.exe $h2 -filter_complex "$h1$h3"format=yuv420p -b:v 9000k -bufsize 9000k "$OUT
+execStr="./ffmpeg.exe $h2 -filter_complex "$h1$h3$h4"format=yuv420p -b:v 9000k -bufsize 9000k "$OUT
 
 
 echo "=========execStr========"
-
 echo $execStr
 ${execStr}
-
 echo "==== end ===="
