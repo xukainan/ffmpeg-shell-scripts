@@ -4,35 +4,35 @@ ulimit -c 9999999
 
 #test 多个
 METHOD_STRS=""
-IMAGE_STRS="b2.jpg"
-DURATION_TIME="4"
-TIME_STRS="5"
+IMAGE_STRS="8.mp4"
+DURATION_TIME="19"
+TIME_STRS="30"
 DURATION_STRS=""
 OFFSET_STRS=""
-FORMAT_STRS="1" # 格式数组，1为图片 2为视频
-OUT_WIDTH="828"
-OUT_HEIGHT="1552"
-TRANSPARENT_IMAGE="img_0.png"
-TEXT_IN_EFFECT_STRS="vdslice vdslice smoothright slidedown"
+FORMAT_STRS="2" # 格式数组，1为图片 2为视频
+OUT_WIDTH="640"
+OUT_HEIGHT="360"
+TRANSPARENT_IMAGE="008.png"
+TEXT_IN_EFFECT_STRS="horzopen smoothright dissolve distance"
 #TEXT_OUT_EFFECT_STRS="circleclose circleclose circleclose circleclose"
-TEXT_FONTCOLOR_STRS="#F8CA92 #F8CA92 red #FFD3A4"
-TEXT_FONTSIZE_STRS="72 90 60 30"
-TEXT_FONTFILE_STRS="fz.ttf fz.ttf fz.ttf fz.ttf"
-TEXT_STRS="博辉·万象城二期 健康科技奢宅 0335-598-8888 天誉礼繁华·一城传世家"
-TEXT_X_STRS="100 100 140 150"
-TEXT_Y_STRS="580 650 900 1080"
-TEXT_IN_OFFECT_STRS="0.5 1 2 2"
+TEXT_FONTCOLOR_STRS="#FFFFFF #FFFFFF #FFFFFF #FFFFFF"
+TEXT_FONTSIZE_STRS="38 38 38 38"
+TEXT_FONTFILE_STRS="1.ttf 1.ttf 1.ttf 1.ttf"
+TEXT_STRS="半包围环绕式园区 百分之40绿化率 匠心打造唐风墅 城市山水墅境，溯源家族门第"
+TEXT_X_STRS="(w-text_w)/2 (w-text_w)/2 (w-text_w)/2 (w-text_w)/2"
+TEXT_Y_STRS="(h-text_h)/2 (h-text_h)/2 (h-text_h)/2 (h-text_h)/2"
+TEXT_IN_OFFECT_STRS="2 6 14 18"
 TEXT_IN_DURATION_STRS="0.5 0.5 0.5 0.5"
-TEXT_OUT_OFFECT_STRS="6 6 6 6"
-LOGO_STRS="4l.png 4d.png"
-LOGO_IN_EFFECT_STRS="circleopen smoothright"
+TEXT_OUT_OFFECT_STRS="3 7 15 19"
+LOGO_STRS=""
+LOGO_IN_EFFECT_STRS=""
 #LOGO_X_STRS="180 180 145 55 410 410"
 #LOGO_Y_STRS="120 210 325 570 570 605"
-LOGO_IN_OFFECT_STRS="0.5 1"
-LOGO_IN_DURATION_STRS="0.5 0.5"
-LOGO_OUT_OFFECT_STRS="6 6"
+LOGO_IN_OFFECT_STRS=""
+LOGO_IN_DURATION_STRS=""
+LOGO_OUT_OFFECT_STRS=""
 MUSIC=""
-OUT="4.mp4"
+OUT="x-8.mp4"
 
 # 传参
 #METHOD_STRS=$1
@@ -93,12 +93,20 @@ if [ $IMAGE_ARRAY_LENGTH -eq 2 ];
       else
          h1="[0:v]scale=$OUT_SIZE[0],[1:v]scale=$OUT_SIZE[1],[0][1]xfade=transition="$m1":duration="$d1":offset="$o1"[mid],"
     fi
+    if [ $TEXT_ARRAY_LENGTH -eq 0 -a $LOGO_ARRAY_LENGTH -eq 0 ]; then
+      h1=${h1%[*}","
+      echo "---------h1---------"$h1
+    fi
 elif [ $IMAGE_ARRAY_LENGTH -eq 1 ]; then
     if [ $TEXT_ARRAY_LENGTH -gt 0 ];
       then
          h1="[0:v]scale=$OUT_SIZE[0],[1:v]scale=$OUT_SIZE[mid],"
       else
          h1="[0:v]scale=$OUT_SIZE[mid],"
+    fi
+    if [ $TEXT_ARRAY_LENGTH -eq 0 -a $LOGO_ARRAY_LENGTH -eq 0 ]; then
+      h1=${h1%[*}","
+      echo "---------h1---------"$h1
     fi
 elif [ $IMAGE_ARRAY_LENGTH -gt 2 ]; then
     $(> temp)
@@ -148,6 +156,7 @@ elif [ $IMAGE_ARRAY_LENGTH -gt 2 ]; then
       fi
 
     done
+    h1=$(cat temp)
     if [ $TEXT_ARRAY_LENGTH -eq 0 -a $LOGO_ARRAY_LENGTH -eq 0 ]; then
       h1=${h1%[*}","
       echo "---------h1---------"$h1
@@ -201,7 +210,7 @@ if [ $TEXT_ARRAY_LENGTH -gt 0 ]; then
       tid1=${TEXT_IN_DURATION_ARRAY[$index]}
       echo -n "[0][text$index]xfade=transition=$ti1:offset=$tio1:duration=$tid1[text$index],"  >> temp
     fi
-      echo -n "[text$index]scale=w=$OUT_WIDTH:h=$OUT_HEIGHT[text$index],[mid][text$index]overlay=x=0:y=0:enable='between(t,0,$too1)'[mid]," >> temp
+      echo -n "[text$index]scale=w=$OUT_WIDTH:h=$OUT_HEIGHT[text$index],[mid][text$index]overlay=x=0:y=0:enable='between(t,0,$too1):eof_action=2'[mid]," >> temp
     let "index+=1"
   done
     h3=$(cat temp)
@@ -215,7 +224,7 @@ $(> temp)
 cycleStr=""
 index=0
 if [ $TEXT_ARRAY_LENGTH -gt 0 ]; then
-   echo $cycleStr " -r 30 -loop 1 -t $DURATION_TIME -i " $TRANSPARENT_IMAGE >> temp
+   echo $cycleStr " -loop 1 -t $DURATION_TIME -i " $TRANSPARENT_IMAGE >> temp
 fi
 for image in $IMAGE_STRS;
 do
@@ -240,7 +249,6 @@ h2=$(cat temp)
 echo $h2
 
 execStr="./ffmpeg.exe $h2 -filter_complex "$h1$h4$h3"format=yuv420p -b:v 9000k -bufsize 9000k "$OUT
-
 
 echo "=========execStr========"
 echo $execStr
